@@ -37,3 +37,4 @@ Thumbs.db
 # Archivos específicos de CDK si son generados y no deben versionarse
 # cdk.out/
 agentic_devops_assistant_fase1.zip
+.env
