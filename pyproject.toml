@@ -25,8 +25,9 @@ dependencies = [
     # "loguru>=0.7.0", # Si se incluye en requirements.txt
 ]
 
-[project.urls "Homepage"]
-"Homepage" = "https://github.com/your-org/agentic-devops-assistant" # Reemplazar con la URL real
+
+[project.urls]
+Homepage = "https://github.com/your-org/agentic-devops-assistant" # Reemplazar con la URL real
 
 [project.scripts]
 agentic-devops = "agentic_devops.cli:cli"
