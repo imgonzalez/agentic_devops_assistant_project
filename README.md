@@ -51,13 +51,14 @@ Para asegurar un entorno limpio y reproducible, recomendamos enfáticamente el u
     ```
     *(Nota: Si el asistente se empaqueta como `setup.py`, la instalación podría ser `pip install -e .`)*
 
-### 🚀 Usando el Asistente: El Comando Principal
+
+### 🚀 Usando el Asistente: Comandos y Funcionalidades
 
 El comando principal para interactuar con el asistente es `agentic-devops`. Asegúrate de que tu entorno virtual esté activado.
 
 #### Generar un Nuevo Proyecto CDK (Python): `agentic-devops new`
 
-Este comando iniciará un proceso interactivo para crear la estructura de tu proyecto CDK escrito en Python.
+Este comando inicia un proceso interactivo para crear la estructura de tu proyecto CDK en Python.
 
 **Flujo del Comando:**
 
@@ -69,26 +70,41 @@ Este comando iniciará un proceso interactivo para crear la estructura de tu pro
     `Por favor, introduce el nombre de tu nuevo proyecto CDK (ej. my-aws-python-api):`
 
 2.  **Selección de la Pila Base (Stack):**
-    Actualmente, el MLP soporta la siguiente pila:
-    `Selecciona la pila base para tu proyecto:`
-    `1. API RESTful (Python Lambda + API Gateway)`
-    `2. Aplicación Web Estática (S3 + CloudFront)`
-    `Introduce el número de tu elección:`
+    Ahora puedes elegir entre:
+    - `1. API RESTful (Python Lambda + API Gateway)`
+    - `2. Aplicación Web Estática (S3 + CloudFront)`
 
-3.  **Confirmación y Generación:**
+3.  **Opción de Integración con GitHub:**
+    Puedes añadir la opción `--github` para que el asistente cree automáticamente un repositorio privado en GitHub y suba el proyecto generado (requiere variable de entorno `GITHUB_TOKEN`).
+    ```bash
+    agentic-devops new --github
+    ```
+
+4.  **Confirmación y Generación:**
     Una vez que proporciones la información, el asistente:
     *   Creará una nueva carpeta con el nombre de tu proyecto.
-    *   Generará la estructura de carpetas CDK en Python (ej. `app/`, `lib/`, `tests/`).
-    *   Escribirá el código CDK base en Python.
+    *   Generará la estructura de carpetas CDK en Python (ej. `bin/`, `lib/`, `tests/`).
+    *   Escribirá el código CDK base en Python, parametrizando el nombre del proyecto y variables clave.
     *   Configurará un archivo `requirements.txt` básico para las dependencias del proyecto CDK.
-    *   Creará un repositorio Git inicial.
-    *   (Próximamente en Fase 2) Configurará un pipeline básico de GitHub Actions.
+    *   Creará un repositorio Git inicial y, si usas `--github`, lo subirá a GitHub automáticamente.
+    *   Añadirá un `README.md` con instrucciones de uso.
 
     Verás mensajes indicando el progreso, por ejemplo:
-    `[INFO] Creating project directory: my-aws-python-api`
-    `[INFO] Generating CDK code for 'API RESTful (Python)' stack...`
-    `[INFO] Initializing Git repository...`
-    `[SUCCESS] CDK Project (Python) generated successfully!`
+    `[INFO] Creando directorio del proyecto: my-aws-python-api`
+    `[INFO] Generando código CDK para la pila seleccionada...`
+    `[INFO] Inicializando repositorio Git...`
+    `[SUCCESS] ¡Proyecto CDK generado exitosamente!`
+    `[SUCCESS] Proyecto subido a GitHub exitosamente.`
+
+#### Validaciones y Manejo de Errores
+
+* El asistente valida el nombre del proyecto y evita sobrescribir directorios existentes no vacíos.
+* Si se elige una plantilla inexistente o hay errores de permisos, se muestra un mensaje claro.
+* Los archivos generados reemplazan correctamente los placeholders por los valores del proyecto.
+
+#### Pruebas y Calidad
+
+* El generador incluye pruebas unitarias y de edge cases para asegurar robustez (por ejemplo, nombres inválidos, directorios existentes, reemplazo de parámetros en archivos).
 
 #### Opciones Adicionales (Próximamente)
 
