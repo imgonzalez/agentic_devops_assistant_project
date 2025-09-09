@@ -23,6 +23,14 @@ def cli():
 @click.option('--project-name', prompt='Por favor, introduce el nombre de tu nuevo proyecto CDK (ej. my-aws-python-api)', type=str)
 @click.option('--stack-type', prompt='Selecciona la pila base para tu proyecto:\n1. API RESTful (Python Lambda + API Gateway)\n2. Aplicación Web Estática (S3 + CloudFront)\nIntroduce el número de tu elección:', type=click.Choice(['1', '2']), default='1')
 def new(project_name: str, stack_type: str):
+    import re
+    # Validate project name (alphanumeric, dashes, underscores, no spaces)
+    if not re.match(r'^[a-zA-Z0-9_-]+$', project_name):
+        logger.error("El nombre del proyecto solo puede contener letras, números, guiones y guiones bajos, sin espacios.")
+        return
+    if len(project_name) < 3:
+        logger.error("El nombre del proyecto debe tener al menos 3 caracteres.")
+        return
     """Genera una nueva estructura de proyecto AWS CDK."""
     logger.info(f"Iniciando la creación del proyecto CDK: {project_name}")
 
@@ -46,11 +54,13 @@ def new(project_name: str, stack_type: str):
         # Crear directorio del proyecto
         project_path = Path(project_name)
         if project_path.exists():
-            logger.warning(f"El directorio '{project_name}' ya existe. Se añadirá el contenido dentro si es posible o se dará error.")
-            # Para MLP, podríamos preguntar si se sobrescribe o se aborta.
-            # Aquí asumimos que creamos si no existe, o fallamos si hay conflicto.
             if not project_path.is_dir():
-                raise AgentDevOpsError(f"'{project_name}' existe pero no es un directorio.")
+                logger.error(f"'{project_name}' existe pero no es un directorio.")
+                return
+            if any(project_path.iterdir()):
+                logger.error(f"El directorio '{project_name}' ya existe y no está vacío. Aborta para evitar sobrescribir archivos.")
+                return
+            logger.warning(f"El directorio '{project_name}' ya existe y está vacío. Se usará para el nuevo proyecto.")
         else:
             project_path.mkdir()
             logger.info(f"Directorio del proyecto creado: {project_name}")

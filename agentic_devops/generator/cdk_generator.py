@@ -18,10 +18,10 @@ class CDKGenerator:
         if not self.templates_base_dir.exists():
             raise AgentDevOpsError(f"No se encontró el directorio de plantillas en: {self.templates_base_dir}")
 
-        self.template_source_path = self.templates_base_dir / selected_stack # Usar variable 'selected_stack' definida en cli.py
 
+        self.template_source_path = self.templates_base_dir / self.stack_template_name
         if not self.template_source_path.exists():
-            raise AgentDevOpsError(f"No se encontró la plantilla '{stack_template_name}' en: {self.template_source_path}")
+            raise AgentDevOpsError(f"No se encontró la plantilla '{self.stack_template_name}' en: {self.template_source_path}")
 
     def generate_project(self):
         logger.info(f"Copiando plantilla '{self.stack_template_name}' a '{self.project_path}'")
@@ -41,15 +41,33 @@ class CDKGenerator:
 
     def _apply_template_params(self):
         """
-        Aplica parámetros específicos del proyecto a los archivos de la plantilla.
-        En MLP, esto puede ser mínimo, pero se deja la estructura.
+        Busca y reemplaza placeholders en los archivos de la plantilla con valores del proyecto.
         """
         logger.debug("Aplicando parámetros a la plantilla...")
-        # Ejemplo: Podríamos buscar y reemplazar el nombre del proyecto en los archivos.
-        # Para esto, necesitamos el nombre real del proyecto, que viene de cli.py.
-        # Esto requiere pasar el nombre del proyecto al constructor o tenerlo disponible.
-        # Asumiendo que self.project_path.name contiene el nombre real.
-
-        # Ejemplo: buscar y reemplazar en 'lib/api_rest_stack.py' y 'bin/app.py'
-        # y en 'requirements.txt' si el nombre del paquete CDK dependiera de ello.
+        replacements = {
+            "{{ PROJECT_NAME }}": self.project_path.name,
+            "{{ AWS_REGION }}": os.environ.get("CDK_AWS_REGION", "us-east-1"),
+            "{{ AWS_ACCOUNT_ID }}": os.environ.get("CDK_AWS_ACCOUNT_ID", "123456789012"),
+            "{{ ENV_NAME }}": os.environ.get("CDK_ENV_NAME", self.project_path.name),
+        }
+        # Archivos a parametrizar
+        files_to_edit = [
+            self.project_path / "bin/app.py",
+            self.project_path / "lib/api_rest_stack.py",
+            self.project_path / "requirements.txt",
+        ]
+        # Ensure README.md exists
+        readme_path = self.project_path / "README.md"
+        if not readme_path.exists():
+            with open(readme_path, "w", encoding="utf-8") as f:
+                f.write(f"# {self.project_path.name}\n\nProyecto generado por Agentic DevOps Assistant.\n\n## Uso\n\n1. Crea y activa un entorno virtual:\n   ```bash\n   python -m venv .venv\n   source .venv/bin/activate\n   ```\n2. Instala dependencias:\n   ```bash\n   pip install -r requirements.txt\n   ```\n3. Despliega con AWS CDK:\n   ```bash\n   cdk synth\n   cdk deploy\n   ```\n")
+        files_to_edit.append(readme_path)
+        for file_path in files_to_edit:
+            if file_path.exists():
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                for k, v in replacements.items():
+                    content = content.replace(k, v)
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(content)
         logger.debug("Parámetros aplicados.")
