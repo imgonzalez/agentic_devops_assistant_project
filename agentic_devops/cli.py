@@ -22,7 +22,8 @@ def cli():
 @cli.command()
 @click.option('--project-name', prompt='Por favor, introduce el nombre de tu nuevo proyecto CDK (ej. my-aws-python-api)', type=str)
 @click.option('--stack-type', prompt='Selecciona la pila base para tu proyecto:\n1. API RESTful (Python Lambda + API Gateway)\n2. Aplicación Web Estática (S3 + CloudFront)\nIntroduce el número de tu elección:', type=click.Choice(['1', '2']), default='1')
-def new(project_name: str, stack_type: str):
+@click.option('--github', is_flag=True, help='Crear y subir el proyecto a un repositorio GitHub (requiere GITHUB_TOKEN)')
+def new(project_name: str, stack_type: str, github: bool):
     import re
     # Validate project name (alphanumeric, dashes, underscores, no spaces)
     if not re.match(r'^[a-zA-Z0-9_-]+$', project_name):
@@ -70,15 +71,29 @@ def new(project_name: str, stack_type: str):
         generator.generate_project()
 
         # Inicializar Git
+        import subprocess
         if not (project_path / ".git").exists():
-            # Ejecutar git init si el directorio está vacío o no es un repo git
-            # En un sistema real, esto usaría subprocess.run(['git', 'init'], cwd=project_path)
             logger.info("Inicializando repositorio Git...")
-            # Simulación: Crear un archivo .git/ para indicar que está inicializado
-            Path(project_path / ".git").mkdir(exist_ok=True)
-            logger.info("Repositorio Git inicializado (simulado).")
+            subprocess.run(["git", "init"], cwd=project_path)
+            subprocess.run(["git", "add", "."], cwd=project_path)
+            subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=project_path)
+            logger.info("Repositorio Git inicializado.")
         else:
             logger.info("Directorio ya es un repositorio Git.")
+
+        # GitHub integration if requested
+        if github:
+            try:
+                from agentic_devops.generator.github_client import GitHubClient
+                logger.info("Creando repositorio en GitHub...")
+                gh_client = GitHubClient()
+                repo_url = gh_client.create_repo(project_name, private=True)
+                logger.info(f"Repositorio GitHub creado: {repo_url}")
+                subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=project_path)
+                subprocess.run(["git", "push", "-u", "origin", "master"], cwd=project_path)
+                logger.success("Proyecto subido a GitHub exitosamente.")
+            except Exception as e:
+                logger.error(f"Error al crear o subir a GitHub: {e}")
 
         logger.success(f"¡Proyecto CDK '{project_name}' generado exitosamente!")
         logger.info("Siguientes pasos:")
@@ -86,7 +101,7 @@ def new(project_name: str, stack_type: str):
         logger.info("2. Activa el entorno virtual: source .venv/bin/activate (Linux/macOS) o .venv\\Scripts\\activate (Windows)")
         logger.info("3. Instala las dependencias del proyecto: pip install -r requirements.txt")
         logger.info("4. Explora la estructura generada y el código CDK.")
-        logger.info("5. Considera añadir tu repositorio a GitHub y configurar el pipeline (Fase 2).")
+        logger.info("5. Considera añadir tu repositorio a GitHub y configurar el pipeline (Fase 2)." if not github else "5. El repositorio ya fue creado y subido a GitHub.")
 
     except AgentDevOpsError as e:
         logger.error(f"Error durante la generación del proyecto: {e}")
