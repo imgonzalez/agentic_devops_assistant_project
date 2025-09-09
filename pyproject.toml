@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-devops-assistant"
+version = "0.1.0"
+authors = [
+  { name="Tu Nombre / Nombre del Equipo", email="tu@email.com" },
+]
+description = "Agentic DevOps Assistant - Fase 1: Generador de CDK Python"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License", # O tu licencia elegida
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+]
+
+dependencies = [
+    "click>=8.1.7",
+    "PyGithub>=1.59.0",
+    "boto3>=1.34.75",
+    # "loguru>=0.7.0", # Si se incluye en requirements.txt
+]
+
+[project.urls "Homepage"]
+"Homepage" = "https://github.com/your-org/agentic-devops-assistant" # Reemplazar con la URL real
+
+[project.scripts]
+agentic-devops = "agentic_devops.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ["agentic_devops"] # Directorio principal del paquete
+
+[tool.black] # Configuración para Black (opcional)
+line-length = 88
+target-version = ['py38']
+
+[tool.isort] # Configuración para isort (opcional)
+profile = "black"
+
+[tool.flake8] # Configuración para Flake8 (opcional)
+max-line-length = 88
+extend-ignore = "E203" # Ignorar problemas que Black arregla

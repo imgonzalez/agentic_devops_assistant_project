@@ -1,0 +1,39 @@
+# Ignorar entorno virtual
+.venv/
+venv/
+
+# Directorios de Python y compilación
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Archivos de IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de Logs y Temporales
+*.log
+*.tmp
+*.temp
+
+# Archivos de SO
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración local (sensibles)
+# env/
+# .env # Si usas variables de entorno directamente
+
+# Dependencias de desarrollo instaladas localmente si no usan venv
+# node_modules/
+
+# Archivos específicos de CDK si son generados y no deben versionarse
+# cdk.out/
+agentic_devops_assistant_fase1.zip

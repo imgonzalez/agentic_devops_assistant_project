@@ -1,0 +1,8 @@
+# requirements.txt - Dependencias para el proyecto CDK generado
+
+aws-cdk-lib>=2.100.0  # Ajustar a versión deseada
+constructs>=10.0.0
+
+# Si la Lambda necesita alguna librería específica (ej. requests)
+# requests
+# python-dotenv
